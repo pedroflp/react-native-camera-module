@@ -14,5 +14,5 @@ class WeCameraPackage : ReactPackage {
 
     override fun createNativeModules(
         reactContext: ReactApplicationContext
-    ): MutableList<NativeModule> = listOf(WeCamera(reactContext)).toMutableList()
+    ): MutableList<NativeModule> = listOf(WeCameraModule(reactContext)).toMutableList()
 }
