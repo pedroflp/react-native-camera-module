@@ -1,6 +1,8 @@
 #import "AppDelegate.h"
 #import <React/RCTBundleURLProvider.h>
 
+#import "wefitCameraModule-Swift.h"
+
 @implementation AppDelegate
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions

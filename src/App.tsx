@@ -1,11 +1,16 @@
-import React from 'react';
 import {StyleSheet, Text, TouchableOpacity, View} from 'react-native';
+import React from 'react';
+
 import WeCamera from './module/WeCamera';
 
 export default function App() {
-  function handleOpenImagePicker() {
-    WeCamera.openImagePicker();
-  }
+  const handleOpenImagePicker = async () => {
+    try {
+      await WeCamera.openImagePicker();
+    } catch (err) {
+      console.log(err);
+    }
+  };
 
   return (
     <View style={styles.container}>
