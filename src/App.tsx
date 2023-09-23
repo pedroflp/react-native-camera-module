@@ -1,37 +1,37 @@
-import {StyleSheet, Text, TouchableOpacity, View} from 'react-native';
-import React from 'react';
+import React, {useState} from 'react';
 
 import WeCamera from './module/WeCamera';
 
+import {Button, ButtonText, Container, ImageView} from './styles';
+
 export default function App() {
+  const [selectedImageUri, setSelectedImageUri] = useState<string>();
   const handleOpenImagePicker = async () => {
     try {
-      await WeCamera.openImagePicker();
+      const reponse = await WeCamera.openImagePicker();
+      setSelectedImageUri(reponse);
     } catch (err) {
       console.log(err);
     }
   };
 
+  const handleRemoveImage = async () => {
+    setSelectedImageUri(undefined);
+  };
+
   return (
-    <View style={styles.container}>
-      <TouchableOpacity style={styles.button} onPress={handleOpenImagePicker}>
-        <Text>Open image picker</Text>
-      </TouchableOpacity>
-    </View>
+    <Container>
+      <Button onPress={handleOpenImagePicker}>
+        <ButtonText>Open image picker</ButtonText>
+      </Button>
+      {selectedImageUri && (
+        <>
+          <Button onPress={handleRemoveImage}>
+            <ButtonText>Remove Image</ButtonText>
+          </Button>
+          <ImageView source={{uri: selectedImageUri}} />
+        </>
+      )}
+    </Container>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    padding: 30,
-    justifyContent: 'center',
-    alignContent: 'center',
-    height: '100%',
-    width: '100%',
-  },
-  button: {
-    padding: 16,
-    borderRadius: 8,
-    backgroundColor: 'lightgrey',
-  },
-});
