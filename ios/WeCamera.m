@@ -14,7 +14,11 @@ RCT_EXTERN_METHOD(simpleMethodReturns:
    (RCTResponseSenderBlock) callback
  )
 RCT_EXTERN_METHOD(
-  openImagePicker: (RCTPromiseResolveBlock) resolve
+openCamera: (RCTPromiseResolveBlock) resolve
+  rejecter: (RCTPromiseRejectBlock) reject
+)
+RCT_EXTERN_METHOD(
+  openGallery: (RCTPromiseResolveBlock) resolve
   rejecter: (RCTPromiseRejectBlock) reject
 )
 @end

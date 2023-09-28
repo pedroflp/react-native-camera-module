@@ -1,3 +1,4 @@
 export type WeCameraProps = {
-  openImagePicker: () => Promise<string>;
+  openGallery: () => Promise<string>;
+  openCamera: () => string;
 };
