@@ -69,7 +69,7 @@ export default function App() {
       </Button>
       {selectedImageUri && (
         <>
-          <Button onPress={handleRemoveImage}>
+          <Button variant="delete" onPress={handleRemoveImage}>
             <ButtonText>Remove Image</ButtonText>
           </Button>
           <ImageView key={imageViewKey} source={{uri: selectedImageUri}} />

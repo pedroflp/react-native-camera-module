@@ -9,15 +9,48 @@ export const Container = styled.View`
   gap: 28px;
 `;
 
-export const Button = styled.TouchableOpacity`
-  background-color: rgba(0, 0, 0, 0.1);
-  border-radius: 14px;
+export const Button = styled.TouchableOpacity<{
+  variant: 'delete' | 'filled';
+}>`
   padding: 16px;
+  border-radius: 8px;
+  align-items: center;
+  justify-content: center;
+
+  ${({variant}) => {
+    switch (variant) {
+      case 'delete':
+        return `
+          width: 50%;
+          margin-left: auto;
+          background-color: rgba(255,0,0, 0.5);
+        `;
+      default:
+        return `
+          background-color: rgba(0, 0, 0, 0.1);
+        `;
+    }
+  }};
 `;
 
-export const ButtonText = styled.Text`
+export const ButtonText = styled.Text<{
+  variant: 'delete';
+}>`
   text-transform: uppercase;
   font-weight: 500;
+
+  ${({variant}) => {
+    switch (variant) {
+      case 'delete':
+        return `
+          color: white;
+        `;
+      default:
+        return `
+          color: black;
+        `;
+    }
+  }};
 `;
 
 export const ImageView = styled.Image`

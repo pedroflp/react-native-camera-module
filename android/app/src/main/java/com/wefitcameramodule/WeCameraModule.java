@@ -36,9 +36,10 @@ public class WeCameraModule extends ReactContextBaseJavaModule {
     private static final int IMAGE_PICKER_REQUEST = 1;
     private static final int CAMERA_CAPTURE_REQUEST = 2;
     private Promise mImagePickerPromise;
+    private String mCurrentPhotoPath;
 
     @ReactMethod
-    public void openImagePicker(Promise promise) {
+    public void openGallery(Promise promise) {
         Activity currentActivity = getCurrentActivity();
         if (currentActivity == null) {
             promise.reject("ACTIVITY_NULL", "Activity is null");
@@ -51,7 +52,7 @@ public class WeCameraModule extends ReactContextBaseJavaModule {
     }
 
     @ReactMethod
-    public void captureImage(Promise promise) {
+    public void openCamera(Promise promise) {
         Activity currentActivity = getCurrentActivity();
         if (currentActivity == null) {
             promise.reject("ACTIVITY_NULL", "Activity is null");
@@ -68,7 +69,7 @@ public class WeCameraModule extends ReactContextBaseJavaModule {
         if (intent.resolveActivity(currentActivity.getPackageManager()) != null) {
             try {
                 File photoFile = createImageFile();
-                Uri photoUri = FileProvider.getUriForFile(currentActivity, "com.your.app.fileprovider", photoFile);
+                Uri photoUri = FileProvider.getUriForFile(currentActivity, "com.wecameramodule.fileprovider", photoFile);
                 intent.putExtra(MediaStore.EXTRA_OUTPUT, photoUri);
                 currentActivity.startActivityForResult(intent, CAMERA_CAPTURE_REQUEST);
             } catch (IOException e) {
@@ -86,7 +87,7 @@ public class WeCameraModule extends ReactContextBaseJavaModule {
         
         // Diretório onde a imagem será armazenada (normalmente, o diretório de fotos do aplicativo)
         File storageDir = new File(Environment.getExternalStoragePublicDirectory(
-                Environment.DIRECTORY_PICTURES), "YourAppDirectoryName");
+                Environment.DIRECTORY_PICTURES), "WeCameraModule");
 
         // Certifique-se de que o diretório existe, se não, crie-o
         if (!storageDir.exists()) {
@@ -101,7 +102,7 @@ public class WeCameraModule extends ReactContextBaseJavaModule {
         );
 
         // Salve o caminho do arquivo para usá-lo posteriormente
-        // mCurrentPhotoPath = imageFile.getAbsolutePath();
+        mCurrentPhotoPath = imageFile.getAbsolutePath();
         
         return imageFile;
     }
@@ -126,16 +127,19 @@ public class WeCameraModule extends ReactContextBaseJavaModule {
                         mImagePickerPromise.reject("IMAGE_PICKER_ERROR", "Image picker canceled");
                     }
                     break;
+                    
                 case CAMERA_CAPTURE_REQUEST:
-                    if (resultCode == Activity.RESULT_OK) {
-                        if (data != null && data.getData() != null) {
-                            Uri capturedImageUri = data.getData();
-                            mImagePickerPromise.resolve(capturedImageUri.toString());
+                     if (resultCode == Activity.RESULT_OK) {
+                        Uri resultUri = Uri.fromFile(new File(mCurrentPhotoPath)); // Obtenha a URI da imagem capturada
+                        if (resultUri != null) {
+                            mImagePickerPromise.resolve(resultUri.toString());
                         } else {
-                            mImagePickerPromise.reject("CAPTURE_ERROR", "Failed to get captured image URI");
+                            mImagePickerPromise.reject("IMAGE_URI_NULL", "A URI da imagem está nula");
                         }
+                    } else if (resultCode == Activity.RESULT_CANCELED) {
+                        mImagePickerPromise.reject("IMAGE_CAPTURE_CANCELLED", "A captura da imagem foi cancelada");
                     } else {
-                        mImagePickerPromise.reject("CAPTURE_CANCELLED", "Image capture cancelled");
+                        mImagePickerPromise.reject("IMAGE_CAPTURE_ERROR", "Erro ao capturar a imagem");
                     }
                     break;
             }
