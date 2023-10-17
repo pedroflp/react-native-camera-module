@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react';
+import React, {useMemo, useState} from 'react';
 
 import WeCamera from './module/WeCamera';
 
@@ -6,49 +6,73 @@ import {Button, ButtonText, Container, ImageView} from './styles';
 import {PermissionsAndroid} from 'react-native';
 
 export default function App() {
-  const [selectedImage, setSelectedImage] = useState<string>();
+  const [selectedImageUri, setSelectedImageUri] = useState<
+    string | undefined
+  >();
+  const [imageId, setImageId] = useState<number>(0);
+
+  // Use useMemo para criar uma chave única para o ImageView sempre que a imagem for alterada
+  const imageViewKey = useMemo(() => imageId.toString(), [imageId]);
+
   const handleOpenImagePicker = async () => {
     try {
-      const selectedImageUri = await WeCamera.openImagePicker();
-      setSelectedImage(selectedImageUri);
+      const response = await WeCamera.openGallery();
+      if (response) {
+        setSelectedImageUri(response);
+        // Atualiza o ID da imagem para forçar a recriação do componente ImageView
+        setImageId(imageId + 1);
+      }
     } catch (err) {
       console.log(err);
     }
   };
-  const handleCaptureImage = async () => {
-    const permission = await PermissionsAndroid.request(
+
+  const handleOpenCamera = async () => {
+    await requestCameraPermission();
+    try {
+      const response = await WeCamera.openCamera();
+      if (response) {
+        setSelectedImageUri(response);
+        // Atualiza o ID da imagem para forçar a recriação do componente ImageView
+        setImageId(imageId + 1);
+      }
+    } catch (err) {
+      console.log(err);
+    }
+  };
+
+  const handleRemoveImage = () => {
+    setSelectedImageUri(undefined);
+    // Atualiza o ID da imagem para forçar a recriação do componente ImageView
+    setImageId(imageId + 1);
+  };
+
+  const requestCameraPermission = async () => {
+    const hasPermission = await PermissionsAndroid.check(
       PermissionsAndroid.PERMISSIONS.CAMERA,
     );
 
-    console.log(permission);
-    try {
-      const capturedImageUri = await WeCamera.captureImage();
-      setSelectedImage(capturedImageUri);
-    } catch (err) {
-      console.log(err);
+    if (!hasPermission) {
+      PermissionsAndroid.request(PermissionsAndroid.PERMISSIONS.CAMERA);
     }
-  };
 
-  const handleRemoveImage = async () => {
-    setSelectedImage(undefined);
+    return;
   };
-
-  useEffect(() => {}, []);
 
   return (
     <Container>
-      <Button onPress={handleCaptureImage}>
-        <ButtonText>Open camera and take photo</ButtonText>
+      <Button onPress={handleOpenCamera}>
+        <ButtonText>Open Camera</ButtonText>
       </Button>
       <Button onPress={handleOpenImagePicker}>
         <ButtonText>Open image picker</ButtonText>
       </Button>
-      {selectedImage && (
+      {selectedImageUri && (
         <>
           <Button onPress={handleRemoveImage}>
             <ButtonText>Remove Image</ButtonText>
           </Button>
-          <ImageView source={{uri: selectedImage}} />
+          <ImageView key={imageViewKey} source={{uri: selectedImageUri}} />
         </>
       )}
     </Container>
